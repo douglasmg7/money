@@ -1,4 +1,4 @@
-package main
+package money
 
 import (
 	"errors"
@@ -10,18 +10,16 @@ import (
 )
 
 // Money is a value with decimal precision of two.
-type Money float32
+type Money float64
 
 func main() {
-	fmt.Println("vim-go")
+	// price, err := Parse("000,3", "g")
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// log.Println("Price: ", price)
 
-	price, err := Parse("000,3", "g")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("Price: ", price)
-
-	// price2, err := Parse("3,01", true)
+	// price2, err := Parse("40.979,00", true)
 	// if err != nil {
 	// 	log.Fatalln("Error, could not parse the value.")
 	// }
@@ -33,26 +31,30 @@ func main() {
 	// log.Println("Total: ", total/2)
 }
 
+// Divide return money divided.
+func (m *Money) Divide(val int) Money {
+	return New(float64(*m) / float64(val))
+}
+
 // Cents return the cents part.
 func (m *Money) Cents() string {
-	// _, frac := math.Modf(float64(*m))
-	// return fmt.Sprintf("%.2f", frac)
-
-	vals := strings.Split(fmt.Sprintf("%.2f", float32(*m)), ".")
+	vals := strings.Split(fmt.Sprintf("%.2f", *m), ".")
 	return vals[1]
 }
 
 // Int return the integer part.
 func (m *Money) Int() string {
-	// _, frac := math.Modf(float64(*m))
-	// return fmt.Sprintf("%.2f", frac)
-
-	return fmt.Sprintf("%.0f", float32(*m))
+	return fmt.Sprintf("%.0f", *m)
 }
 
 // New create a Money value.
 func New(val float64) Money {
-	return Money(math.Round(val*100) / 100)
+	sVal := fmt.Sprintf("%.2f", val)
+	newVal, err := strconv.ParseFloat(sVal, 64)
+	if err != nil {
+		log.Fatalf("New(), Could not convert parse to float")
+	}
+	return Money(newVal)
 }
 
 // Parse from a string.
@@ -67,7 +69,7 @@ func Parse(str string, sep string) (Money, error) {
 		return 0, errors.New(`Invalid separator, must be "", "," or "."`)
 	}
 	str = strings.TrimSpace(str)
-	val64, err := strconv.ParseFloat(str, 32)
+	val64, err := strconv.ParseFloat(str, 64)
 	if err != nil {
 		return 0, err
 	}
