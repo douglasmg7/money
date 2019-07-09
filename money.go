@@ -75,3 +75,22 @@ func Parse(str string, sep string) (Money, error) {
 	}
 	return Money(math.Round(val64*100) / 100), nil
 }
+
+// Parse parse from a string to int * 100.
+func ParseDecimalString(str string, sep string) (int, error) {
+	switch sep {
+	case ",":
+		str = strings.Replace(str, ".", "", -1)
+		str = strings.Replace(str, ",", ".", -1)
+	case ".":
+	case "":
+	default:
+		return 0, errors.New(`Invalid separator, must be "", "," or "."`)
+	}
+	str = strings.TrimSpace(str)
+	val64, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		return 0, err
+	}
+	return int(math.Round(val64 * 100)), nil
+}
